@@ -115,25 +115,25 @@ const Hero = () => {
     // Image data
     const imageData = {
         1: {
-            src: "./img/p1.jpeg",
+            src: "./img/p1.webp",
             alt: "Doctor analyzing health data on a laptop",
             title: "Expert Analysis",
             description: "AI-powered health insights"
         },
         2: {
-            src: "./img/p2.jpeg",
+            src: "./img/p2.webp",
             alt: "Person smiling while looking at positive health results on a phone",
             title: "Positive Results",
             description: "Life-changing outcomes"
         },
         3: {
-            src: "./img/p3.jpeg",
+            src: "./img/p3.webp",
             alt: "Abstract AI visualization representing data processing",
             title: "AI Technology",
             description: "Advanced algorithms"
         },
         4: {
-            src: "./img/p4.jpeg",
+            src: "./img/p4.webp",
             alt: "Person smiling while looking at positive health results on a phone",
             title: "Health Journey",
             description: "Personalized care"
