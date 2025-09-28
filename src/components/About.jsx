@@ -82,7 +82,7 @@ const About = () => {
     };
 
     return (
-        <section id="about" className="bg-light2 py-24 sm:py-32 font-brand-sans">
+        <section id="about" className="bg-light2 py-24 sm:py-32 font-brand-sans overflow-hidden">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center">
                     <h2 className="text-base font-semibold text-highlight tracking-wider uppercase">The Mission</h2>
