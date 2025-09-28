@@ -5,9 +5,12 @@ import { useScrollToTop } from '../components/UseScrollToTop';
 // --- Reusable UI Components ---
 
 // Custom Yes/No button toggle
-const YesNoToggle = ({ label, value, onChange }) => (
+const YesNoToggle = ({ label, value, onChange, required }) => (
     <div>
-        <label className="block text-lg font-semibold text-dark mb-3">{label}</label>
+        <label className="block text-lg font-semibold text-dark mb-3">
+            {label}
+            {required && <span className="text-red-500 ml-1">*</span>}
+        </label>
         <div className="flex space-x-4">
             <button
                 type="button"
@@ -28,13 +31,17 @@ const YesNoToggle = ({ label, value, onChange }) => (
 );
 
 // Custom styled select dropdown
-const StyledSelect = ({ label, value, onChange, options, placeholder }) => (
+const StyledSelect = ({ label, value, onChange, options, placeholder, required }) => (
     <div>
-        <label className="block  text-lg font-semibold text-dark mb-3">{label}</label>
+        <label className="block text-lg font-semibold text-dark mb-3">
+            {label}
+            {required && <span className="text-red-500 ml-1">*</span>}
+        </label>
         <select
             value={value}
             onChange={(e) => onChange(e.target.value)}
             className="w-full p-4 bg-light border-2 border-dark/10 text-dark focus:outline-none focus:border-highlight"
+            required={required}
         >
             <option value="" disabled>{placeholder}</option>
             {options.map(opt => (
@@ -44,11 +51,13 @@ const StyledSelect = ({ label, value, onChange, options, placeholder }) => (
     </div>
 );
 
-// Custom styled number input
 // Custom styled number input without spinners
-const StyledNumberInput = ({ label, value, onChange, placeholder }) => (
+const StyledNumberInput = ({ label, value, onChange, placeholder, required }) => (
      <div>
-        <label className="block text-lg font-semibold text-dark mb-3">{label}</label>
+        <label className="block text-lg font-semibold text-dark mb-3">
+            {label}
+            {required && <span className="text-red-500 ml-1">*</span>}
+        </label>
         <input
             type="text"
             inputMode="numeric"
@@ -61,6 +70,7 @@ const StyledNumberInput = ({ label, value, onChange, placeholder }) => (
             }}
             placeholder={placeholder}
             className="w-full p-4 bg-light border-2 border-dark/10 text-dark focus:outline-none focus:border-highlight"
+            required={required}
         />
     </div>
 );
@@ -87,46 +97,106 @@ const Assessment = () => {
     const [step, setStep] = useState(1);
     const [formData, setFormData] = useState({
         Age: '',
-        Gender: 'Male',
-        Polyuria: 'No',
-        Polydipsia: 'No',
-        'sudden weight loss': 'No',
-        weakness: 'No',
-        Polyphagia: 'No',
-        'Genital thrush': 'No',
-        'visual blurring': 'No',
-        Itching: 'No',
-        Irritability: 'No',
-        'delayed healing': 'No',
-        'partial paresis': 'No',
-        'muscle stiffness': 'No',
-        Alopecia: 'No',
-        Obesity: 'No'
+        Gender: '',
+        Polyuria: '',
+        Polydipsia: '',
+        'sudden weight loss': '',
+        weakness: '',
+        Polyphagia: '',
+        'Genital thrush': '',
+        'visual blurring': '',
+        Itching: '',
+        Irritability: '',
+        'delayed healing': '',
+        'partial paresis': '',
+        'muscle stiffness': '',
+        Alopecia: '',
+        Obesity: ''
     });
     const [isLoading, setIsLoading] = useState(false);
     const [predictionResult, setPredictionResult] = useState(null);
     const [error, setError] = useState(null);
+    const [formErrors, setFormErrors] = useState({});
 
     const handleFormChange = (field, value) => {
         setFormData(prev => ({ ...prev, [field]: value }));
+        // Clear error when user starts typing
+        if (formErrors[field]) {
+            setFormErrors(prev => ({ ...prev, [field]: '' }));
+        }
+    };
+
+    const validateStep = (step) => {
+        const errors = {};
+        
+        switch (step) {
+            case 1:
+                if (!formData.Age) errors.Age = 'Age is required';
+                if (!formData.Gender) errors.Gender = 'Gender is required';
+                if (!formData.Polyuria) errors.Polyuria = 'This field is required';
+                if (!formData.Polydipsia) errors.Polydipsia = 'This field is required';
+                if (!formData['sudden weight loss']) errors['sudden weight loss'] = 'This field is required';
+                break;
+            case 2:
+                if (!formData.weakness) errors.weakness = 'This field is required';
+                if (!formData.Polyphagia) errors.Polyphagia = 'This field is required';
+                if (!formData['Genital thrush']) errors['Genital thrush'] = 'This field is required';
+                if (!formData['visual blurring']) errors['visual blurring'] = 'This field is required';
+                if (!formData.Itching) errors.Itching = 'This field is required';
+                break;
+            case 3:
+                if (!formData.Irritability) errors.Irritability = 'This field is required';
+                if (!formData['delayed healing']) errors['delayed healing'] = 'This field is required';
+                if (!formData['partial paresis']) errors['partial paresis'] = 'This field is required';
+                if (!formData['muscle stiffness']) errors['muscle stiffness'] = 'This field is required';
+                if (!formData.Alopecia) errors.Alopecia = 'This field is required';
+                if (!formData.Obesity) errors.Obesity = 'This field is required';
+                break;
+        }
+        
+        return errors;
     };
 
     const nextStep = () => {
-        setStep(prev => prev + 1);
-        // Scroll to top when moving to next step
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        const errors = validateStep(step);
+        
+        if (Object.keys(errors).length === 0) {
+            setStep(prev => prev + 1);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            setFormErrors({});
+        } else {
+            setFormErrors(errors);
+            // Scroll to first error
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
     };
 
     const prevStep = () => {
         setStep(prev => prev - 1);
         window.scrollTo({ top: 0, behavior: 'smooth' });
+        setFormErrors({});
     };
     
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
+        // Validate all steps before submitting
+        const errors = validateStep(1);
+        const errors2 = validateStep(2);
+        const errors3 = validateStep(3);
+        const allErrors = { ...errors, ...errors2, ...errors3 };
+        
+        if (Object.keys(allErrors).length > 0) {
+            setFormErrors(allErrors);
+            setStep(1); // Go back to first step to show errors
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
+        }
+
         setIsLoading(true);
         setPredictionResult(null);
         setError(null);
+        setFormErrors({});
 
         // Scroll to top when submitting
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -157,24 +227,25 @@ const Assessment = () => {
         setStep(1);
         setFormData({
             Age: '',
-            Gender: 'Male',
-            Polyuria: 'No',
-            Polydipsia: 'No',
-            'sudden weight loss': 'No',
-            weakness: 'No',
-            Polyphagia: 'No',
-            'Genital thrush': 'No',
-            'visual blurring': 'No',
-            Itching: 'No',
-            Irritability: 'No',
-            'delayed healing': 'No',
-            'partial paresis': 'No',
-            'muscle stiffness': 'No',
-            Alopecia: 'No',
-            Obesity: 'No'
+            Gender: '',
+            Polyuria: '',
+            Polydipsia: '',
+            'sudden weight loss': '',
+            weakness: '',
+            Polyphagia: '',
+            'Genital thrush': '',
+            'visual blurring': '',
+            Itching: '',
+            Irritability: '',
+            'delayed healing': '',
+            'partial paresis': '',
+            'muscle stiffness': '',
+            Alopecia: '',
+            Obesity: ''
         });
         setPredictionResult(null);
         setError(null);
+        setFormErrors({});
     };
 
     const renderStepContent = () => {
@@ -183,104 +254,168 @@ const Assessment = () => {
                 return (
                     <div className="space-y-8">
                         <h3 className="font-brand-serif text-3xl font-bold text-dark">Basic Information</h3>
-                        <StyledNumberInput 
-                            label="Age:" 
-                            value={formData.Age} 
-                            onChange={val => handleFormChange('Age', val)} 
-                            placeholder="Enter your age"
-                        />
-                        <StyledSelect 
-                            label="Gender:" 
-                            value={formData.Gender} 
-                            onChange={val => handleFormChange('Gender', val)} 
-                            placeholder="Select your gender" 
-                            options={[
-                                {value: 'Male', label: 'Male'}, 
-                                {value: 'Female', label: 'Female'}
-                            ]} 
-                        />
-                        <YesNoToggle 
-                            label="Polyuria (makes large amounts of urine):" 
-                            value={formData.Polyuria} 
-                            onChange={val => handleFormChange('Polyuria', val)} 
-                        />
-                        <YesNoToggle 
-                            label="Polydipsia (excessive thirst):" 
-                            value={formData.Polydipsia} 
-                            onChange={val => handleFormChange('Polydipsia', val)} 
-                        />
-                        <YesNoToggle 
-                            label="Sudden weight loss:" 
-                            value={formData['sudden weight loss']} 
-                            onChange={val => handleFormChange('sudden weight loss', val)} 
-                        />
+                        <div>
+                            <StyledNumberInput 
+                                label="Age" 
+                                value={formData.Age} 
+                                onChange={val => handleFormChange('Age', val)} 
+                                placeholder="Enter your age"
+                                required={true}
+                            />
+                            {formErrors.Age && <p className="text-red-500 text-sm mt-1">{formErrors.Age}</p>}
+                        </div>
+                        <div>
+                            <StyledSelect 
+                                label="Gender" 
+                                value={formData.Gender} 
+                                onChange={val => handleFormChange('Gender', val)} 
+                                placeholder="Select your gender" 
+                                options={[
+                                    {value: 'Male', label: 'Male'}, 
+                                    {value: 'Female', label: 'Female'}
+                                ]} 
+                                required={true}
+                            />
+                            {formErrors.Gender && <p className="text-red-500 text-sm mt-1">{formErrors.Gender}</p>}
+                        </div>
+                        <div>
+                            <YesNoToggle 
+                                label="Polyuria (makes large amounts of urine)" 
+                                value={formData.Polyuria} 
+                                onChange={val => handleFormChange('Polyuria', val)} 
+                                required={true}
+                            />
+                            {formErrors.Polyuria && <p className="text-red-500 text-sm mt-1">{formErrors.Polyuria}</p>}
+                        </div>
+                        <div>
+                            <YesNoToggle 
+                                label="Polydipsia (excessive thirst)" 
+                                value={formData.Polydipsia} 
+                                onChange={val => handleFormChange('Polydipsia', val)} 
+                                required={true}
+                            />
+                            {formErrors.Polydipsia && <p className="text-red-500 text-sm mt-1">{formErrors.Polydipsia}</p>}
+                        </div>
+                        <div>
+                            <YesNoToggle 
+                                label="Sudden weight loss" 
+                                value={formData['sudden weight loss']} 
+                                onChange={val => handleFormChange('sudden weight loss', val)} 
+                                required={true}
+                            />
+                            {formErrors['sudden weight loss'] && <p className="text-red-500 text-sm mt-1">{formErrors['sudden weight loss']}</p>}
+                        </div>
                     </div>
                 );
             case 2:
                 return (
                     <div className="space-y-8">
                         <h3 className="font-brand-serif text-3xl font-bold text-dark">Symptoms & Signs</h3>
-                        <YesNoToggle 
-                            label="Weakness:" 
-                            value={formData.weakness} 
-                            onChange={val => handleFormChange('weakness', val)} 
-                        />
-                        <YesNoToggle 
-                            label="Polyphagia (a feeling of extreme hunger):" 
-                            value={formData.Polyphagia} 
-                            onChange={val => handleFormChange('Polyphagia', val)} 
-                        />
-                        <YesNoToggle 
-                            label="Genital thrush (fungal infection):" 
-                            value={formData['Genital thrush']} 
-                            onChange={val => handleFormChange('Genital thrush', val)} 
-                        />
-                        <YesNoToggle 
-                            label="Visual blurring:" 
-                            value={formData['visual blurring']} 
-                            onChange={val => handleFormChange('visual blurring', val)} 
-                        />
-                        <YesNoToggle 
-                            label="Itching:" 
-                            value={formData.Itching} 
-                            onChange={val => handleFormChange('Itching', val)} 
-                        />
+                        <div>
+                            <YesNoToggle 
+                                label="Weakness" 
+                                value={formData.weakness} 
+                                onChange={val => handleFormChange('weakness', val)} 
+                                required={true}
+                            />
+                            {formErrors.weakness && <p className="text-red-500 text-sm mt-1">{formErrors.weakness}</p>}
+                        </div>
+                        <div>
+                            <YesNoToggle 
+                                label="Polyphagia (a feeling of extreme hunger)" 
+                                value={formData.Polyphagia} 
+                                onChange={val => handleFormChange('Polyphagia', val)} 
+                                required={true}
+                            />
+                            {formErrors.Polyphagia && <p className="text-red-500 text-sm mt-1">{formErrors.Polyphagia}</p>}
+                        </div>
+                        <div>
+                            <YesNoToggle 
+                                label="Genital thrush (fungal infection)" 
+                                value={formData['Genital thrush']} 
+                                onChange={val => handleFormChange('Genital thrush', val)} 
+                                required={true}
+                            />
+                            {formErrors['Genital thrush'] && <p className="text-red-500 text-sm mt-1">{formErrors['Genital thrush']}</p>}
+                        </div>
+                        <div>
+                            <YesNoToggle 
+                                label="Visual blurring" 
+                                value={formData['visual blurring']} 
+                                onChange={val => handleFormChange('visual blurring', val)} 
+                                required={true}
+                            />
+                            {formErrors['visual blurring'] && <p className="text-red-500 text-sm mt-1">{formErrors['visual blurring']}</p>}
+                        </div>
+                        <div>
+                            <YesNoToggle 
+                                label="Itching" 
+                                value={formData.Itching} 
+                                onChange={val => handleFormChange('Itching', val)} 
+                                required={true}
+                            />
+                            {formErrors.Itching && <p className="text-red-500 text-sm mt-1">{formErrors.Itching}</p>}
+                        </div>
                     </div>
                 );
             case 3:
                 return (
                      <div className="space-y-8">
                         <h3 className="font-brand-serif text-3xl font-bold text-dark">Additional Symptoms</h3>
-                        <YesNoToggle 
-                            label="Irritability (increased anger):" 
-                            value={formData.Irritability} 
-                            onChange={val => handleFormChange('Irritability', val)} 
-                        />
-                        <YesNoToggle 
-                            label="Delayed healing:" 
-                            value={formData['delayed healing']} 
-                            onChange={val => handleFormChange('delayed healing', val)} 
-                        />
-                        <YesNoToggle 
-                            label="Partial paresis:" 
-                            value={formData['partial paresis']} 
-                            onChange={val => handleFormChange('partial paresis', val)} 
-                        />
-                        <YesNoToggle 
-                            label="Muscle stiffness:" 
-                            value={formData['muscle stiffness']} 
-                            onChange={val => handleFormChange('muscle stiffness', val)} 
-                        />
-                        <YesNoToggle 
-                            label="Alopecia (hair loss):" 
-                            value={formData.Alopecia} 
-                            onChange={val => handleFormChange('Alopecia', val)} 
-                        />
-                        <YesNoToggle 
-                            label="Obesity (excessive accumulation of body fat):" 
-                            value={formData.Obesity} 
-                            onChange={val => handleFormChange('Obesity', val)} 
-                        />
+                        <div>
+                            <YesNoToggle 
+                                label="Irritability (increased anger)" 
+                                value={formData.Irritability} 
+                                onChange={val => handleFormChange('Irritability', val)} 
+                                required={true}
+                            />
+                            {formErrors.Irritability && <p className="text-red-500 text-sm mt-1">{formErrors.Irritability}</p>}
+                        </div>
+                        <div>
+                            <YesNoToggle 
+                                label="Delayed healing" 
+                                value={formData['delayed healing']} 
+                                onChange={val => handleFormChange('delayed healing', val)} 
+                                required={true}
+                            />
+                            {formErrors['delayed healing'] && <p className="text-red-500 text-sm mt-1">{formErrors['delayed healing']}</p>}
+                        </div>
+                        <div>
+                            <YesNoToggle 
+                                label="Partial paresis" 
+                                value={formData['partial paresis']} 
+                                onChange={val => handleFormChange('partial paresis', val)} 
+                                required={true}
+                            />
+                            {formErrors['partial paresis'] && <p className="text-red-500 text-sm mt-1">{formErrors['partial paresis']}</p>}
+                        </div>
+                        <div>
+                            <YesNoToggle 
+                                label="Muscle stiffness" 
+                                value={formData['muscle stiffness']} 
+                                onChange={val => handleFormChange('muscle stiffness', val)} 
+                                required={true}
+                            />
+                            {formErrors['muscle stiffness'] && <p className="text-red-500 text-sm mt-1">{formErrors['muscle stiffness']}</p>}
+                        </div>
+                        <div>
+                            <YesNoToggle 
+                                label="Alopecia (hair loss)" 
+                                value={formData.Alopecia} 
+                                onChange={val => handleFormChange('Alopecia', val)} 
+                                required={true}
+                            />
+                            {formErrors.Alopecia && <p className="text-red-500 text-sm mt-1">{formErrors.Alopecia}</p>}
+                        </div>
+                        <div>
+                            <YesNoToggle 
+                                label="Obesity (excessive accumulation of body fat)" 
+                                value={formData.Obesity} 
+                                onChange={val => handleFormChange('Obesity', val)} 
+                                required={true}
+                            />
+                            {formErrors.Obesity && <p className="text-red-500 text-sm mt-1">{formErrors.Obesity}</p>}
+                        </div>
                     </div>
                 );
             default:
@@ -328,6 +463,9 @@ const Assessment = () => {
                                 </h2>
                                 <p className="mt-4 max-w-2xl mx-auto text-lg md:text-xl text-primary">
                                     Fill out the form below to assess your diabetes risk using our AI-powered prediction model
+                                </p>
+                                <p className="mt-2 text-sm text-red-500">
+                                    * All fields are required
                                 </p>
                             </div>
                             
