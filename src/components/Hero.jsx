@@ -1,119 +1,132 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 
+// Preload critical images
+const preloadImages = () => {
+  const images = [
+    './img/p1.webp',
+    './img/p2.webp', 
+    './img/p3.webp',
+    './img/p4.webp'
+  ];
+  
+  images.forEach(src => {
+    const img = new Image();
+    img.src = src;
+  });
+};
+
+// Optimized Hero Component
 const Hero = () => {
     const [hoveredImage, setHoveredImage] = useState(null);
+    const [imagesLoaded, setImagesLoaded] = useState(false);
 
-    // Smoother container animation with better staggering
-    const containerVariants = {
-        hidden: { opacity: 0 },
-        visible: {
-            opacity: 1,
-            transition: {
-                staggerChildren: 0.2,
-                delayChildren: 0.3,
+    // Preload images on component mount
+    React.useEffect(() => {
+        preloadImages();
+        // Set a small delay to ensure preloading starts
+        const timer = setTimeout(() => setImagesLoaded(true), 100);
+        return () => clearTimeout(timer);
+    }, []);
+
+    // Memoized variants to prevent unnecessary re-renders
+    const variants = useMemo(() => ({
+        container: {
+            hidden: { opacity: 0 },
+            visible: {
+                opacity: 1,
+                transition: {
+                    staggerChildren: 0.15, // Reduced for faster load
+                    delayChildren: 0.1,    // Reduced initial delay
+                },
             },
         },
-    };
-
-    // Smoother text animations with better easing
-    const textVariants = {
-        hidden: { opacity: 0, y: 30 },
-        visible: {
-            opacity: 1,
-            y: 0,
-            transition: {
-                duration: 0.8,
-                ease: [0.25, 0.1, 0.25, 1] // Smoother ease-out
+        text: {
+            hidden: { opacity: 0, y: 20 }, // Reduced movement
+            visible: {
+                opacity: 1,
+                y: 0,
+                transition: {
+                    duration: 0.6, // Faster duration
+                    ease: "easeOut"
+                },
             },
         },
-    };
-
-    // Optimized image grid with better staggering
-    const imageGridVariants = {
-        hidden: {},
-        visible: {
-            transition: {
-                staggerChildren: 0.25,
+        imageGrid: {
+            hidden: {},
+            visible: {
+                transition: {
+                    staggerChildren: 0.2, // Faster staggering
+                },
             },
         },
-    };
-
-    // Smoother image animations
-    const imageVariants = {
-        hidden: { opacity: 0, scale: 0.95 }, // Slightly less scale for smoother feel
-        visible: {
-            opacity: 1,
-            scale: 1,
-            transition: {
-                duration: 0.8,
-                ease: [0.25, 0.1, 0.25, 1] // Consistent easing
+        image: {
+            hidden: { opacity: 0, scale: 0.98 }, // Minimal scale
+            visible: {
+                opacity: 1,
+                scale: 1,
+                transition: {
+                    duration: 0.6, // Faster duration
+                    ease: "easeOut"
+                },
             },
         },
-    };
-
-    // Smoother button animations
-    const buttonVariants = {
-        hover: {
-            scale: 1.05,
-            y: -2, // Add subtle lift for depth
-            transition: { 
-                type: 'spring', 
-                stiffness: 400, // Smoother spring
-                damping: 25,
-                duration: 0.3
+        button: {
+            hover: {
+                scale: 1.03, // Reduced scale for performance
+                y: -1,
+                transition: { 
+                    type: 'spring', 
+                    stiffness: 500, // Stiffer spring for snappier response
+                    damping: 30,
+                    duration: 0.2
+                }
+            },
+            tap: { 
+                scale: 0.98,
+                transition: { duration: 0.1 }
             }
         },
-        tap: { 
-            scale: 0.98,
-            transition: { duration: 0.15 }
-        }
-    };
-
-    // Optimized hover animation for images
-    const imageHoverVariants = {
-        hover: {
-            y: -12, // Slightly reduced movement
-            scale: 1.02,
-            zIndex: 20,
-            transition: { 
-                type: "spring", 
-                stiffness: 350, // Smoother spring
-                damping: 25,
-                mass: 1
+        imageHover: {
+            hover: {
+                y: -8, // Reduced movement
+                scale: 1.01, // Minimal scale
+                zIndex: 20,
+                transition: { 
+                    type: "spring", 
+                    stiffness: 500, 
+                    damping: 30,
+                    mass: 0.8 // Lighter mass
+                }
+            }
+        },
+        overlay: {
+            hidden: { opacity: 0 },
+            visible: { 
+                opacity: 1,
+                transition: { 
+                    duration: 0.3, // Faster transitions
+                    ease: "easeOut" 
+                }
+            }
+        },
+        textSlide: {
+            hidden: { y: 10, opacity: 0 }, // Minimal movement
+            visible: { 
+                y: 0, 
+                opacity: 1,
+                transition: { 
+                    duration: 0.3, 
+                    ease: "easeOut",
+                    delay: 0.05 // Reduced delay
+                }
             }
         }
-    };
+    }), []);
 
-    // Smoother overlay transitions
-    const overlayVariants = {
-        hidden: { opacity: 0 },
-        visible: { 
-            opacity: 1,
-            transition: { 
-                duration: 0.4, // Slightly longer for smoothness
-                ease: "easeOut" 
-            }
-        }
-    };
-
-    // Smoother text transitions
-    const textSlideVariants = {
-        hidden: { y: 15, opacity: 0 }, // Reduced movement
-        visible: { 
-            y: 0, 
-            opacity: 1,
-            transition: { 
-                duration: 0.4, 
-                ease: "easeOut",
-                delay: 0.1 
-            }
-        }
-    };
-
-    // Image data
-    const imageData = {
+    // Memoized image data
+    const imageData = useMemo(() => ({
         1: {
             src: "./img/p1.webp",
             alt: "Doctor analyzing health data on a laptop",
@@ -138,23 +151,23 @@ const Hero = () => {
             title: "Health Journey",
             description: "Personalized care"
         }
-    };
+    }), []);
 
-    // Debounced hover handlers for better performance
-    const handleImageHover = (imageId) => {
+    // Optimized hover handlers with debouncing
+    const handleImageHover = React.useCallback((imageId) => {
         setHoveredImage(imageId);
-    };
+    }, []);
 
-    const handleImageLeave = () => {
+    const handleImageLeave = React.useCallback(() => {
         setHoveredImage(null);
-    };
+    }, []);
 
-    // Reusable Image Component for better performance
-    const ImageCard = ({ id, className, imageData }) => (
+    // Optimized Image Card Component
+    const ImageCard = React.memo(({ id, className, imageData }) => (
         <motion.div 
             className={`absolute shadow-2xl cursor-pointer overflow-hidden ${className}`}
-            variants={imageVariants}
-            whileHover="hover"
+            variants={variants.image}
+            whileHover={variants.imageHover.hover}
             onHoverStart={() => handleImageHover(id)}
             onHoverEnd={handleImageLeave}
         >
@@ -162,39 +175,60 @@ const Hero = () => {
                 src={imageData.src}
                 alt={imageData.alt}
                 className="w-full h-full object-cover"
-                loading="lazy" // Add lazy loading for better performance
+                loading="lazy"
+                decoding="async" // Better image decoding
             />
             
             {/* Gradient Overlay */}
             <motion.div 
-                className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent"
+                className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent pointer-events-none"
                 initial="hidden"
                 animate={hoveredImage === id ? "visible" : "hidden"}
-                variants={overlayVariants}
+                variants={variants.overlay}
             />
             
             {/* Hover Text Content */}
             <motion.div 
-                className="absolute bottom-0 left-0 right-0 p-6 text-white"
+                className="absolute bottom-0 left-0 right-0 p-4 text-white pointer-events-none"
                 initial="hidden"
                 animate={hoveredImage === id ? "visible" : "hidden"}
-                variants={textSlideVariants}
+                variants={variants.textSlide}
             >
-                <h3 className="text-xl font-bold mb-2">{imageData.title}</h3>
-                <p className="text-sm opacity-90">{imageData.description}</p>
+                <h3 className="text-lg font-bold mb-1">{imageData.title}</h3>
+                <p className="text-xs opacity-90">{imageData.description}</p>
             </motion.div>
 
             {/* Background Overlay for non-hovered images */}
             <motion.div 
-                className="absolute inset-0 bg-black"
+                className="absolute inset-0 bg-black pointer-events-none"
                 initial={{ opacity: 0 }}
                 animate={{ 
-                    opacity: hoveredImage && hoveredImage !== id ? 0.3 : 0 
+                    opacity: hoveredImage && hoveredImage !== id ? 0.25 : 0 
                 }}
-                transition={{ duration: 0.4, ease: "easeOut" }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
             />
         </motion.div>
-    );
+    ));
+
+    // Show loading state if images aren't ready
+    if (!imagesLoaded) {
+        return (
+            <section className="relative bg-slate-200 font-brand-sans overflow-hidden">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="relative min-h-screen flex flex-col lg:flex-row items-center justify-center lg:justify-between gap-12 py-24">
+                        <div className="w-full lg:w-1/2 text-center lg:text-left z-10">
+                            <div className="h-24 bg-gray-300 animate-pulse rounded mb-6"></div>
+                            <div className="h-4 bg-gray-300 animate-pulse rounded w-3/4 mb-4"></div>
+                            <div className="h-12 bg-gray-300 animate-pulse rounded w-1/2 mt-8"></div>
+                        </div>
+                        <div className="w-full lg:w-1/2 h-96 lg:h-[600px] relative">
+                            <div className="absolute inset-0 bg-gray-300 animate-pulse rounded"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        );
+    }
 
     return (
         <section id="home" className="relative bg-slate-200 font-brand-sans overflow-hidden">
@@ -203,29 +237,29 @@ const Hero = () => {
 
                     {/* Text Content */}
                     <motion.div
-                        variants={containerVariants}
+                        variants={variants.container}
                         initial="hidden"
                         animate="visible"
                         className="w-full lg:w-1/2 text-center lg:text-left z-10"
                     >
                         <motion.h1
-                            variants={textVariants}
+                            variants={variants.text}
                             className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold font-brand-serif tracking-tight text-dark"
                         >
                             Clarity for Your Health Journey
                         </motion.h1>
 
                         <motion.p
-                            variants={textVariants}
+                            variants={variants.text}
                             className="mt-6 text-lg md:text-xl text-primary max-w-xl mx-auto lg:mx-0"
                         >
                             Harness the power of predictive AI to understand your diabetes risk. Our assessment provides clear, actionable insights, guiding you towards a healthier future.
                         </motion.p>
 
-                        <motion.div variants={textVariants} className="mt-12">
+                        <motion.div variants={variants.text} className="mt-12">
                             <Link to="/assessment">
                                 <motion.button
-                                    variants={buttonVariants}
+                                    variants={variants.button}
                                     whileHover="hover"
                                     whileTap="tap"
                                     className="bg-highlight text-light font-bold px-10 py-4 tracking-wider uppercase text-base shadow-lg"
@@ -240,185 +274,33 @@ const Hero = () => {
                     {/* Image Composition */}
                     <motion.div 
                         className="relative w-full lg:w-1/2 h-96 lg:h-[600px]"
-                        variants={imageGridVariants}
+                        variants={variants.imageGrid}
                         initial="hidden"
                         animate="visible"
                     >
-                        {/* Image 1 - Larger, back-right */}
-                        <motion.div 
-                            className="absolute w-7/12 h-2/3 top-0 right-0 shadow-2xl cursor-pointer overflow-hidden" 
-                            variants={imageVariants}
-                            whileHover={imageHoverVariants.hover}
-                            onHoverStart={() => handleImageHover(1)}
-                            onHoverEnd={handleImageLeave}
-                        >
-                            <img 
-                                src={imageData[1].src}
-                                alt={imageData[1].alt}
-                                className="w-full h-full object-cover"
-                                loading="lazy"
-                            />
-                            
-                            <motion.div 
-                                className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent"
-                                animate={{ 
-                                    opacity: hoveredImage === 1 ? 1 : 0 
-                                }}
-                                transition={{ duration: 0.4 }}
-                            />
-                            
-                            <motion.div 
-                                className="absolute bottom-0 left-0 right-0 p-6 text-white"
-                                animate={{ 
-                                    y: hoveredImage === 1 ? 0 : 15,
-                                    opacity: hoveredImage === 1 ? 1 : 0
-                                }}
-                                transition={{ duration: 0.4, delay: 0.1 }}
-                            >
-                                <h3 className="text-xl font-bold mb-2">{imageData[1].title}</h3>
-                                <p className="text-sm opacity-90">{imageData[1].description}</p>
-                            </motion.div>
-
-                            <motion.div 
-                                className="absolute inset-0 bg-black"
-                                animate={{ 
-                                    opacity: hoveredImage && hoveredImage !== 1 ? 0.3 : 0 
-                                }}
-                                transition={{ duration: 0.4 }}
-                            />
-                        </motion.div>
-
-                        {/* Image 2 - Middle, front */}
-                        <motion.div 
-                            className="absolute w-5/12 h-2/3 top-2/4 left-0 shadow-2xl z-10 cursor-pointer overflow-hidden" 
-                            variants={imageVariants}
-                            whileHover={imageHoverVariants.hover}
-                            onHoverStart={() => handleImageHover(2)}
-                            onHoverEnd={handleImageLeave}
-                        >
-                            <img 
-                                src={imageData[2].src}
-                                alt={imageData[2].alt}
-                                className="w-full h-full object-cover"
-                                loading="lazy"
-                            />
-                            
-                            <motion.div 
-                                className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent"
-                                animate={{ 
-                                    opacity: hoveredImage === 2 ? 1 : 0 
-                                }}
-                                transition={{ duration: 0.4 }}
-                            />
-                            
-                            <motion.div 
-                                className="absolute bottom-0 left-0 right-0 p-6 text-white"
-                                animate={{ 
-                                    y: hoveredImage === 2 ? 0 : 15,
-                                    opacity: hoveredImage === 2 ? 1 : 0
-                                }}
-                                transition={{ duration: 0.4, delay: 0.1 }}
-                            >
-                                <h3 className="text-xl font-bold mb-2">{imageData[2].title}</h3>
-                                <p className="text-sm opacity-90">{imageData[2].description}</p>
-                            </motion.div>
-
-                            <motion.div 
-                                className="absolute inset-0 bg-black"
-                                animate={{ 
-                                    opacity: hoveredImage && hoveredImage !== 2 ? 0.3 : 0 
-                                }}
-                                transition={{ duration: 0.4 }}
-                            />
-                        </motion.div>
-
-                        {/* Image 3 - Bottom-left */}
-                        <motion.div 
-                            className="absolute w-5/12 h-1/2 top-0 left-0 shadow-xl cursor-pointer overflow-hidden" 
-                            variants={imageVariants}
-                            whileHover={imageHoverVariants.hover}
-                            onHoverStart={() => handleImageHover(3)}
-                            onHoverEnd={handleImageLeave}
-                        >
-                            <img 
-                                src={imageData[3].src}
-                                alt={imageData[3].alt}
-                                className="w-full h-full object-cover"
-                                loading="lazy"
-                            />
-                            
-                            <motion.div 
-                                className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent"
-                                animate={{ 
-                                    opacity: hoveredImage === 3 ? 1 : 0 
-                                }}
-                                transition={{ duration: 0.4 }}
-                            />
-                            
-                            <motion.div 
-                                className="absolute bottom-0 left-0 right-0 p-6 text-white"
-                                animate={{ 
-                                    y: hoveredImage === 3 ? 0 : 15,
-                                    opacity: hoveredImage === 3 ? 1 : 0
-                                }}
-                                transition={{ duration: 0.4, delay: 0.1 }}
-                            >
-                                <h3 className="text-xl font-bold mb-2">{imageData[3].title}</h3>
-                                <p className="text-sm opacity-90">{imageData[3].description}</p>
-                            </motion.div>
-
-                            <motion.div 
-                                className="absolute inset-0 bg-black"
-                                animate={{ 
-                                    opacity: hoveredImage && hoveredImage !== 3 ? 0.3 : 0 
-                                }}
-                                transition={{ duration: 0.4 }}
-                            />
-                        </motion.div>
-
-                        {/* Image 4 */}
-                        <motion.div 
-                            className="absolute w-7/12 h-1/2 top-2/3 right-0 shadow-2xl z-10 cursor-pointer overflow-hidden" 
-                            variants={imageVariants}
-                            whileHover={imageHoverVariants.hover}
-                            onHoverStart={() => handleImageHover(4)}
-                            onHoverEnd={handleImageLeave}
-                        >
-                            <img 
-                                src={imageData[4].src}
-                                alt={imageData[4].alt}
-                                className="w-full h-full object-cover"
-                                loading="lazy"
-                            />
-                            
-                            <motion.div 
-                                className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent"
-                                animate={{ 
-                                    opacity: hoveredImage === 4 ? 1 : 0 
-                                }}
-                                transition={{ duration: 0.4 }}
-                            />
-                            
-                            <motion.div 
-                                className="absolute bottom-0 left-0 right-0 p-6 text-white"
-                                animate={{ 
-                                    y: hoveredImage === 4 ? 0 : 15,
-                                    opacity: hoveredImage === 4 ? 1 : 0
-                                }}
-                                transition={{ duration: 0.4, delay: 0.1 }}
-                            >
-                                <h3 className="text-xl font-bold mb-2">{imageData[4].title}</h3>
-                                <p className="text-sm opacity-90">{imageData[4].description}</p>
-                            </motion.div>
-
-                            <motion.div 
-                                className="absolute inset-0 bg-black"
-                                animate={{ 
-                                    opacity: hoveredImage && hoveredImage !== 4 ? 0.3 : 0 
-                                }}
-                                transition={{ duration: 0.4 }}
-                            />
-                        </motion.div>
+                        <ImageCard 
+                            id={1}
+                            className="w-7/12 h-2/3 top-0 right-0"
+                            imageData={imageData[1]}
+                        />
+                        
+                        <ImageCard 
+                            id={2}
+                            className="w-5/12 h-2/3 top-2/4 left-0 z-10"
+                            imageData={imageData[2]}
+                        />
+                        
+                        <ImageCard 
+                            id={3}
+                            className="w-5/12 h-1/2 top-0 left-0"
+                            imageData={imageData[3]}
+                        />
+                        
+                        <ImageCard 
+                            id={4}
+                            className="w-7/12 h-1/2 top-2/3 right-0 z-10"
+                            imageData={imageData[4]}
+                        />
                     </motion.div>
 
                 </div>
@@ -427,4 +309,4 @@ const Hero = () => {
     );
 };
 
-export default Hero;
+export default React.memo(Hero);
