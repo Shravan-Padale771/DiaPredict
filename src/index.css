@@ -1,81 +1,84 @@
+/* Use one of these Tailwind imports */
 @import "tailwindcss";
 
+/* Or for older syntax */
+/* @import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities"; */
 
 @font-face {
-  font-family: 'Gilroy';
-  src: url('./fonts/gilroy.ttf') format('truetype');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
+  font-family: 'Gilroy';
+  src: url('/fonts/gilroy.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
-  font-family: 'Helvetica';
-  src: url('./fonts/Helvetica.ttf') format('truetype');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
+  font-family: 'Helvetica';
+  src: url('/fonts/Helvetica.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
 }
 
 /* Fonts */
 .font-brand-serif {
-  font-family: "Gilroy", serif;
+  font-family: "Gilroy", serif;
 }
 .font-brand-sans {
-  font-family: "Helvetica", sans-serif;
+  font-family: "Helvetica", sans-serif;
 }
 
 /* === Trust & Medical Theme === */
 
 /* Primary - Dark Slate (professional / trust) */
 .bg-primary {
-  background-color: #2D3748;
+  background-color: #2D3748;
 }
 .text-primary {
-  color: #2D3748;
+  color: #2D3748;
 }
 
 /* Light - Pure White (clean / medical base) */
 .bg-light {
-    background-color: #FFFFFF;
+  background-color: #FFFFFF;
 }
 .text-light {
-    color: #FFFFFF;
+  color: #FFFFFF;
 }
 
 /* Dark Text - Dark Slate (strong & readable) */
 .bg-dark {
-    background-color: #2D3748;
+  background-color: #1A202C; /* Changed to darker shade for distinction */
 }
 .text-dark {
-  color: #2D3748;
+  color: #1A202C; /* Changed to darker shade for distinction */
 }
 
 /* Accent - Bright Teal (health / positivity / modern) */
 .bg-accent {
-  background-color: #2DD4BF;
+  background-color: #2DD4BF;
 }
 .text-accent {
-  color: #2DD4BF;
+  color: #2DD4BF;
 }
 
 .bg-highlight {
-  background-color: #3B82F6;
+  background-color: #3B82F6;
 }
 .text-highlight {
-  color: #3B82F6;
+  color: #3B82F6;
 }
 
 /* Secondary & Borders - Light Gray */
 .bg-secondary {
-    background-color: #E2E8F0;
+  background-color: #E2E8F0;
 }
 .border-secondary {
-    border-color: #E2E8F0;
+  border-color: #E2E8F0;
 }
-
 
 html {
-  scroll-behavior : smooth;
+  scroll-behavior: smooth;
 }
-
