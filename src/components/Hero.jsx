@@ -115,25 +115,25 @@ const Hero = () => {
     // Image data
     const imageData = {
         1: {
-            src: "https://images.pexels.com/photos/4386464/pexels-photo-4386464.jpeg",
+            src: "./img/p1.jpeg",
             alt: "Doctor analyzing health data on a laptop",
             title: "Expert Analysis",
             description: "AI-powered health insights"
         },
         2: {
-            src: "https://images.pexels.com/photos/4031688/pexels-photo-4031688.jpeg",
+            src: "./img/p2.jpeg",
             alt: "Person smiling while looking at positive health results on a phone",
             title: "Positive Results",
             description: "Life-changing outcomes"
         },
         3: {
-            src: "https://images.pexels.com/photos/12326657/pexels-photo-12326657.jpeg",
+            src: "./img/p3.jpeg",
             alt: "Abstract AI visualization representing data processing",
             title: "AI Technology",
             description: "Advanced algorithms"
         },
         4: {
-            src: "https://images.pexels.com/photos/28436267/pexels-photo-28436267.jpeg",
+            src: "./img/p4.jpeg",
             alt: "Person smiling while looking at positive health results on a phone",
             title: "Health Journey",
             description: "Personalized care"
@@ -246,7 +246,7 @@ const Hero = () => {
                     >
                         {/* Image 1 - Larger, back-right */}
                         <motion.div 
-                            className="absolute w-7/12 h-3/4 top-0 right-0 shadow-2xl cursor-pointer overflow-hidden" 
+                            className="absolute w-7/12 h-2/3 top-0 right-0 shadow-2xl cursor-pointer overflow-hidden" 
                             variants={imageVariants}
                             whileHover={imageHoverVariants.hover}
                             onHoverStart={() => handleImageHover(1)}

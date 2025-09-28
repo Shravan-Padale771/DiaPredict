@@ -126,7 +126,7 @@ const Assessment = () => {
         }
     };
 
-    const validateStep = (step) => {
+    const validateCurrentStep = () => {
         const errors = {};
         
         switch (step) {
@@ -157,8 +157,15 @@ const Assessment = () => {
         return errors;
     };
 
+    const validateAllSteps = () => {
+        const errors1 = validateCurrentStep(1);
+        const errors2 = validateCurrentStep(2);
+        const errors3 = validateCurrentStep(3);
+        return { ...errors1, ...errors2, ...errors3 };
+    };
+
     const nextStep = () => {
-        const errors = validateStep(step);
+        const errors = validateCurrentStep();
         
         if (Object.keys(errors).length === 0) {
             setStep(prev => prev + 1);
@@ -181,14 +188,18 @@ const Assessment = () => {
         e.preventDefault();
         
         // Validate all steps before submitting
-        const errors = validateStep(1);
-        const errors2 = validateStep(2);
-        const errors3 = validateStep(3);
-        const allErrors = { ...errors, ...errors2, ...errors3 };
+        const allErrors = validateAllSteps();
         
         if (Object.keys(allErrors).length > 0) {
             setFormErrors(allErrors);
-            setStep(1); // Go back to first step to show errors
+            // Find the first step with errors and go to it
+            const firstErrorStep = Object.keys(allErrors).some(field => 
+                ['Age', 'Gender', 'Polyuria', 'Polydipsia', 'sudden weight loss'].includes(field)
+            ) ? 1 : Object.keys(allErrors).some(field => 
+                ['weakness', 'Polyphagia', 'Genital thrush', 'visual blurring', 'Itching'].includes(field)
+            ) ? 2 : 3;
+            
+            setStep(firstErrorStep);
             window.scrollTo({ top: 0, behavior: 'smooth' });
             return;
         }

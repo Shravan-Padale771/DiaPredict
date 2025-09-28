@@ -2,14 +2,14 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>https://yourdomain.com/</loc>
+    <loc>https://dia-predict-beta.vercel.app/</loc>
     <lastmod>2025-09-28</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
 
   <url>
-    <loc>https://yourdomain.com/assessment</loc>
+    <loc>https://dia-predict-beta.vercel.app/assessment</loc>
     <lastmod>2025-09-28</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
