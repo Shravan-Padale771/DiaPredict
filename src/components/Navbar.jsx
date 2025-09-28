@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useScrollToTop } from './UseScrollToTop';
 
 // --- SVG ICONS ---
 const MenuIcon = () => (
@@ -72,6 +73,7 @@ export default function Navbar() {
                         
                         {/* Desktop Navigation */}
                         <nav className="hidden md:flex md:space-x-8">
+                            <Link onClick={useScrollToTop()} to="/" className="text-primary hover:text-dark font-semibold transition-colors">Home</Link>
                              <a  href="/#about" className="text-primary hover:text-dark font-semibold transition-colors">About</a>
                              <a href="/#how-it-works" className="text-primary hover:text-dark font-semibold transition-colors">How It Works</a>
                              <a href="/#faq" className="text-primary hover:text-dark font-semibold transition-colors">FAQ</a>

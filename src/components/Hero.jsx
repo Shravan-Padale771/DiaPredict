@@ -2,53 +2,37 @@ import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 
-// Preload critical images
-const preloadImages = () => {
-  const images = [
-    './img/p1.webp',
-    './img/p2.webp', 
-    './img/p3.webp',
-    './img/p4.webp'
-  ];
-  
-  images.forEach(src => {
-    const img = new Image();
-    img.src = src;
-  });
-};
-
-// Optimized Hero Component
 const Hero = () => {
     const [hoveredImage, setHoveredImage] = useState(null);
-    const [imagesLoaded, setImagesLoaded] = useState(false);
+    const [imagesReady, setImagesReady] = useState(false);
 
-    // Preload images on component mount
+    // Simple timeout to show content - images will load in background
     React.useEffect(() => {
-        preloadImages();
-        // Set a small delay to ensure preloading starts
-        const timer = setTimeout(() => setImagesLoaded(true), 100);
+        const timer = setTimeout(() => {
+            setImagesReady(true);
+        }, 500); // Short delay to prevent flashing
         return () => clearTimeout(timer);
     }, []);
 
-    // Memoized variants to prevent unnecessary re-renders
+    // Memoized variants
     const variants = useMemo(() => ({
         container: {
             hidden: { opacity: 0 },
             visible: {
                 opacity: 1,
                 transition: {
-                    staggerChildren: 0.15, // Reduced for faster load
-                    delayChildren: 0.1,    // Reduced initial delay
+                    staggerChildren: 0.15,
+                    delayChildren: 0.1,
                 },
             },
         },
         text: {
-            hidden: { opacity: 0, y: 20 }, // Reduced movement
+            hidden: { opacity: 0, y: 20 },
             visible: {
                 opacity: 1,
                 y: 0,
                 transition: {
-                    duration: 0.6, // Faster duration
+                    duration: 0.8,
                     ease: "easeOut"
                 },
             },
@@ -57,47 +41,44 @@ const Hero = () => {
             hidden: {},
             visible: {
                 transition: {
-                    staggerChildren: 0.2, // Faster staggering
+                    staggerChildren: 0.25,
                 },
             },
         },
         image: {
-            hidden: { opacity: 0, scale: 0.98 }, // Minimal scale
+            hidden: { opacity: 0, scale: 0.95 },
             visible: {
                 opacity: 1,
                 scale: 1,
                 transition: {
-                    duration: 0.6, // Faster duration
+                    duration: 0.8,
                     ease: "easeOut"
                 },
             },
         },
         button: {
             hover: {
-                scale: 1.03, // Reduced scale for performance
-                y: -1,
+                scale: 1.05,
                 transition: { 
                     type: 'spring', 
-                    stiffness: 500, // Stiffer spring for snappier response
-                    damping: 30,
-                    duration: 0.2
+                    stiffness: 400,
+                    damping: 25
                 }
             },
             tap: { 
                 scale: 0.98,
-                transition: { duration: 0.1 }
+                transition: { duration: 0.15 }
             }
         },
         imageHover: {
             hover: {
-                y: -8, // Reduced movement
-                scale: 1.01, // Minimal scale
+                y: -10,
+                scale: 1.02,
                 zIndex: 20,
                 transition: { 
                     type: "spring", 
-                    stiffness: 500, 
-                    damping: 30,
-                    mass: 0.8 // Lighter mass
+                    stiffness: 400, 
+                    damping: 25
                 }
             }
         },
@@ -106,26 +87,26 @@ const Hero = () => {
             visible: { 
                 opacity: 1,
                 transition: { 
-                    duration: 0.3, // Faster transitions
+                    duration: 0.3,
                     ease: "easeOut" 
                 }
             }
         },
         textSlide: {
-            hidden: { y: 10, opacity: 0 }, // Minimal movement
+            hidden: { y: 15, opacity: 0 },
             visible: { 
                 y: 0, 
                 opacity: 1,
                 transition: { 
                     duration: 0.3, 
                     ease: "easeOut",
-                    delay: 0.05 // Reduced delay
+                    delay: 0.1 
                 }
             }
         }
     }), []);
 
-    // Memoized image data
+    // Image data
     const imageData = useMemo(() => ({
         1: {
             src: "./img/p1.webp",
@@ -153,7 +134,6 @@ const Hero = () => {
         }
     }), []);
 
-    // Optimized hover handlers with debouncing
     const handleImageHover = React.useCallback((imageId) => {
         setHoveredImage(imageId);
     }, []);
@@ -162,12 +142,12 @@ const Hero = () => {
         setHoveredImage(null);
     }, []);
 
-    // Optimized Image Card Component
+    // Simple Image Card Component
     const ImageCard = React.memo(({ id, className, imageData }) => (
         <motion.div 
             className={`absolute shadow-2xl cursor-pointer overflow-hidden ${className}`}
             variants={variants.image}
-            whileHover={variants.imageHover.hover}
+            whileHover="hover"
             onHoverStart={() => handleImageHover(id)}
             onHoverEnd={handleImageLeave}
         >
@@ -175,8 +155,7 @@ const Hero = () => {
                 src={imageData.src}
                 alt={imageData.alt}
                 className="w-full h-full object-cover"
-                loading="lazy"
-                decoding="async" // Better image decoding
+                loading="eager"
             />
             
             {/* Gradient Overlay */}
@@ -203,26 +182,22 @@ const Hero = () => {
                 className="absolute inset-0 bg-black pointer-events-none"
                 initial={{ opacity: 0 }}
                 animate={{ 
-                    opacity: hoveredImage && hoveredImage !== id ? 0.25 : 0 
+                    opacity: hoveredImage && hoveredImage !== id ? 0.3 : 0 
                 }}
                 transition={{ duration: 0.3, ease: "easeOut" }}
             />
         </motion.div>
     ));
 
-    // Show loading state if images aren't ready
-    if (!imagesLoaded) {
+    // Show simple loading state
+    if (!imagesReady) {
         return (
             <section className="relative bg-slate-200 font-brand-sans overflow-hidden">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="relative min-h-screen flex flex-col lg:flex-row items-center justify-center lg:justify-between gap-12 py-24">
-                        <div className="w-full lg:w-1/2 text-center lg:text-left z-10">
-                            <div className="h-24 bg-gray-300 animate-pulse rounded mb-6"></div>
-                            <div className="h-4 bg-gray-300 animate-pulse rounded w-3/4 mb-4"></div>
-                            <div className="h-12 bg-gray-300 animate-pulse rounded w-1/2 mt-8"></div>
-                        </div>
-                        <div className="w-full lg:w-1/2 h-96 lg:h-[600px] relative">
-                            <div className="absolute inset-0 bg-gray-300 animate-pulse rounded"></div>
+                    <div className="relative min-h-screen flex items-center justify-center">
+                        <div className="text-center">
+                            <div className="w-16 h-16 border-4 border-highlight border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                            <p className="text-dark">Loading...</p>
                         </div>
                     </div>
                 </div>
