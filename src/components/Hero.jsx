@@ -1,203 +1,117 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 
 const Hero = () => {
     const [hoveredImage, setHoveredImage] = useState(null);
-    const [imagesReady, setImagesReady] = useState(false);
+    const [isLoaded, setIsLoaded] = useState(false);
 
-    // Simple timeout to show content - images will load in background
-    React.useEffect(() => {
+    // Simple loading delay
+    useEffect(() => {
         const timer = setTimeout(() => {
-            setImagesReady(true);
-        }, 500); // Short delay to prevent flashing
+            setIsLoaded(true);
+        }, 1000);
         return () => clearTimeout(timer);
     }, []);
 
-    // Memoized variants
-    const variants = useMemo(() => ({
-        container: {
-            hidden: { opacity: 0 },
-            visible: {
-                opacity: 1,
-                transition: {
-                    staggerChildren: 0.15,
-                    delayChildren: 0.1,
-                },
+    // Animation variants
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.2,
+                delayChildren: 0.3,
             },
         },
-        text: {
-            hidden: { opacity: 0, y: 20 },
-            visible: {
-                opacity: 1,
-                y: 0,
-                transition: {
-                    duration: 0.8,
-                    ease: "easeOut"
-                },
+    };
+
+    const textVariants = {
+        hidden: { opacity: 0, y: 30 },
+        visible: {
+            opacity: 1,
+            y: 0,
+            transition: {
+                duration: 0.8,
+                ease: "easeOut"
             },
         },
-        imageGrid: {
-            hidden: {},
-            visible: {
-                transition: {
-                    staggerChildren: 0.25,
-                },
+    };
+
+    const imageGridVariants = {
+        hidden: {},
+        visible: {
+            transition: {
+                staggerChildren: 0.25,
             },
         },
-        image: {
-            hidden: { opacity: 0, scale: 0.95 },
-            visible: {
-                opacity: 1,
-                scale: 1,
-                transition: {
-                    duration: 0.8,
-                    ease: "easeOut"
-                },
+    };
+
+    const imageVariants = {
+        hidden: { opacity: 0, scale: 0.9 },
+        visible: {
+            opacity: 1,
+            scale: 1,
+            transition: {
+                duration: 0.8,
+                ease: "easeOut" 
             },
         },
-        button: {
-            hover: {
-                scale: 1.05,
-                transition: { 
-                    type: 'spring', 
-                    stiffness: 400,
-                    damping: 25
-                }
-            },
-            tap: { 
-                scale: 0.98,
-                transition: { duration: 0.15 }
-            }
+    };
+
+    const buttonVariants = {
+        hover: {
+            scale: 1.05,
+            transition: { type: 'spring', stiffness: 300 }
         },
-        imageHover: {
-            hover: {
-                y: -10,
-                scale: 1.02,
-                zIndex: 20,
-                transition: { 
-                    type: "spring", 
-                    stiffness: 400, 
-                    damping: 25
-                }
-            }
-        },
-        overlay: {
-            hidden: { opacity: 0 },
-            visible: { 
-                opacity: 1,
-                transition: { 
-                    duration: 0.3,
-                    ease: "easeOut" 
-                }
-            }
-        },
-        textSlide: {
-            hidden: { y: 15, opacity: 0 },
-            visible: { 
-                y: 0, 
-                opacity: 1,
-                transition: { 
-                    duration: 0.3, 
-                    ease: "easeOut",
-                    delay: 0.1 
-                }
-            }
-        }
-    }), []);
+        tap: { scale: 0.95 }
+    };
 
     // Image data
-    const imageData = useMemo(() => ({
-        1: {
+    const imageData = [
+        {
+            id: 1,
             src: "./img/p1.webp",
             alt: "Doctor analyzing health data on a laptop",
             title: "Expert Analysis",
-            description: "AI-powered health insights"
+            description: "AI-powered health insights",
+            className: "w-7/12 h-3/4 top-0 right-0"
         },
-        2: {
+        {
+            id: 2,
             src: "./img/p2.webp",
             alt: "Person smiling while looking at positive health results on a phone",
             title: "Positive Results",
-            description: "Life-changing outcomes"
+            description: "Life-changing outcomes",
+            className: "w-5/12 h-2/3 top-2/4 left-0 z-10"
         },
-        3: {
+        {
+            id: 3,
             src: "./img/p3.webp",
             alt: "Abstract AI visualization representing data processing",
             title: "AI Technology",
-            description: "Advanced algorithms"
+            description: "Advanced algorithms",
+            className: "w-5/12 h-1/2 top-0 left-0"
         },
-        4: {
+        {
+            id: 4,
             src: "./img/p4.webp",
             alt: "Person smiling while looking at positive health results on a phone",
             title: "Health Journey",
-            description: "Personalized care"
+            description: "Personalized care",
+            className: "w-7/12 h-1/2 top-2/3 right-0 z-10"
         }
-    }), []);
+    ];
 
-    const handleImageHover = React.useCallback((imageId) => {
-        setHoveredImage(imageId);
-    }, []);
-
-    const handleImageLeave = React.useCallback(() => {
-        setHoveredImage(null);
-    }, []);
-
-    // Simple Image Card Component
-    const ImageCard = React.memo(({ id, className, imageData }) => (
-        <motion.div 
-            className={`absolute shadow-2xl cursor-pointer overflow-hidden ${className}`}
-            variants={variants.image}
-            whileHover="hover"
-            onHoverStart={() => handleImageHover(id)}
-            onHoverEnd={handleImageLeave}
-        >
-            <img 
-                src={imageData.src}
-                alt={imageData.alt}
-                className="w-full h-full object-cover"
-                loading="eager"
-            />
-            
-            {/* Gradient Overlay */}
-            <motion.div 
-                className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent pointer-events-none"
-                initial="hidden"
-                animate={hoveredImage === id ? "visible" : "hidden"}
-                variants={variants.overlay}
-            />
-            
-            {/* Hover Text Content */}
-            <motion.div 
-                className="absolute bottom-0 left-0 right-0 p-4 text-white pointer-events-none"
-                initial="hidden"
-                animate={hoveredImage === id ? "visible" : "hidden"}
-                variants={variants.textSlide}
-            >
-                <h3 className="text-lg font-bold mb-1">{imageData.title}</h3>
-                <p className="text-xs opacity-90">{imageData.description}</p>
-            </motion.div>
-
-            {/* Background Overlay for non-hovered images */}
-            <motion.div 
-                className="absolute inset-0 bg-black pointer-events-none"
-                initial={{ opacity: 0 }}
-                animate={{ 
-                    opacity: hoveredImage && hoveredImage !== id ? 0.3 : 0 
-                }}
-                transition={{ duration: 0.3, ease: "easeOut" }}
-            />
-        </motion.div>
-    ));
-
-    // Show simple loading state
-    if (!imagesReady) {
+    // Show loading state
+    if (!isLoaded) {
         return (
             <section className="relative bg-slate-200 font-brand-sans overflow-hidden">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="relative min-h-screen flex items-center justify-center">
                         <div className="text-center">
-                            <div className="w-16 h-16 border-4 border-highlight border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                            <p className="text-dark">Loading...</p>
+                            <div className="w-12 h-12 border-4 border-highlight border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                            <p className="text-dark text-lg">Loading...</p>
                         </div>
                     </div>
                 </div>
@@ -212,29 +126,29 @@ const Hero = () => {
 
                     {/* Text Content */}
                     <motion.div
-                        variants={variants.container}
+                        variants={containerVariants}
                         initial="hidden"
                         animate="visible"
                         className="w-full lg:w-1/2 text-center lg:text-left z-10"
                     >
                         <motion.h1
-                            variants={variants.text}
+                            variants={textVariants}
                             className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold font-brand-serif tracking-tight text-dark"
                         >
                             Clarity for Your Health Journey
                         </motion.h1>
 
                         <motion.p
-                            variants={variants.text}
+                            variants={textVariants}
                             className="mt-6 text-lg md:text-xl text-primary max-w-xl mx-auto lg:mx-0"
                         >
                             Harness the power of predictive AI to understand your diabetes risk. Our assessment provides clear, actionable insights, guiding you towards a healthier future.
                         </motion.p>
 
-                        <motion.div variants={variants.text} className="mt-12">
+                        <motion.div variants={textVariants} className="mt-12">
                             <Link to="/assessment">
                                 <motion.button
-                                    variants={variants.button}
+                                    variants={buttonVariants}
                                     whileHover="hover"
                                     whileTap="tap"
                                     className="bg-highlight text-light font-bold px-10 py-4 tracking-wider uppercase text-base shadow-lg"
@@ -249,33 +163,63 @@ const Hero = () => {
                     {/* Image Composition */}
                     <motion.div 
                         className="relative w-full lg:w-1/2 h-96 lg:h-[600px]"
-                        variants={variants.imageGrid}
+                        variants={imageGridVariants}
                         initial="hidden"
                         animate="visible"
                     >
-                        <ImageCard 
-                            id={1}
-                            className="w-7/12 h-2/3 top-0 right-0"
-                            imageData={imageData[1]}
-                        />
-                        
-                        <ImageCard 
-                            id={2}
-                            className="w-5/12 h-2/3 top-2/4 left-0 z-10"
-                            imageData={imageData[2]}
-                        />
-                        
-                        <ImageCard 
-                            id={3}
-                            className="w-5/12 h-1/2 top-0 left-0"
-                            imageData={imageData[3]}
-                        />
-                        
-                        <ImageCard 
-                            id={4}
-                            className="w-7/12 h-1/2 top-2/3 right-0 z-10"
-                            imageData={imageData[4]}
-                        />
+                        {imageData.map((image) => (
+                            <motion.div 
+                                key={image.id}
+                                className={`absolute shadow-2xl cursor-pointer overflow-hidden ${image.className}`}
+                                variants={imageVariants}
+                                whileHover={{
+                                    y: -15,
+                                    scale: 1.02,
+                                    zIndex: 20,
+                                    transition: { type: "spring", stiffness: 300, damping: 20 }
+                                }}
+                                onHoverStart={() => setHoveredImage(image.id)}
+                                onHoverEnd={() => setHoveredImage(null)}
+                            >
+                                <img 
+                                    src={image.src}
+                                    alt={image.alt}
+                                    className="w-full h-full object-cover"
+                                />
+                                
+                                {/* Gradient Overlay for text */}
+                                <motion.div 
+                                    className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0"
+                                    animate={{ 
+                                        opacity: hoveredImage === image.id ? 1 : 0 
+                                    }}
+                                    transition={{ duration: 0.3 }}
+                                />
+                                
+                                {/* Hover Text Content */}
+                                <motion.div 
+                                    className="absolute bottom-0 left-0 right-0 p-6 text-white"
+                                    initial={{ y: 20, opacity: 0 }}
+                                    animate={{ 
+                                        y: hoveredImage === image.id ? 0 : 20,
+                                        opacity: hoveredImage === image.id ? 1 : 0
+                                    }}
+                                    transition={{ duration: 0.3, delay: 0.1 }}
+                                >
+                                    <h3 className="text-xl font-bold mb-2">{image.title}</h3>
+                                    <p className="text-sm opacity-90">{image.description}</p>
+                                </motion.div>
+
+                                {/* Background Overlay for other images when this is hovered */}
+                                <motion.div 
+                                    className="absolute inset-0 bg-black opacity-0"
+                                    animate={{ 
+                                        opacity: hoveredImage && hoveredImage !== image.id ? 0.4 : 0 
+                                    }}
+                                    transition={{ duration: 0.3 }}
+                                />
+                            </motion.div>
+                        ))}
                     </motion.div>
 
                 </div>
@@ -284,4 +228,4 @@ const Hero = () => {
     );
 };
 
-export default React.memo(Hero);
+export default Hero;
